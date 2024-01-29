@@ -1,123 +1,119 @@
-import React, { useReducer } from 'react';
-// import './Calculator.css';
+import { useReducer } from "react";
+import '../App.css'
 
-const initState = {
+let initState = {
     inputs: "",
-    res: "" // Change 'result' to 'res'
-};
-
-let operators = ["+", "-", "/", "*"];
-
-function reducer(state = initState, { type, payload }) {
+    res: "",
+  };
+  
+  let operators = ["+", "-", "*", "/"];
+  
+  const reducer = (state = initState, { type, payload }) => {
     switch (type) {
-        case "addint": {
-            let addOps = true;
-            if (operators.includes(payload) && operators.includes(state.inputs.slice(state.inputs.length - 1, state.inputs.length))) {
-                addOps = false;
-            } else {
-                addOps = true;
-            }
-            if (addOps) {
-                return { ...state, inputs: state.inputs + payload };
-            }
-            return { ...state };
-        }
-        case "Clear": {
-            return { ...state, inputs: "", res: "" };
-        }
-        case "CALCULATE": {
-            const inpLen = state.inputs.length;
-            if (inpLen > 0 && operators.includes(state.inputs.slice(inpLen - 1, inpLen))) {
-                try {
-                    const result = eval(state.inputs);
-                    if (!Number.isFinite(result)) {
-                        throw new Error("cannot divide by zero");
-                    }
-                    return { ...state, res: result.toString(), inputs: result.toString() };
-                } catch (error) {
-                    console.log(error);
-                    return { ...state };
-                }
-            } else {
-                try {
-                    const result = eval(state.inputs);
-                    if (!Number.isFinite(result)) {
-                        throw new Error("cannot divide by zero");
-                    }
-                    return { ...state, res: "", inputs: result.toString() };
-                } catch (error) {
-                    console.log(error);
-                    return { ...state };
-                }
-            }
-        }
-        
-        case "DELETE": {
-            return {
-                ...state,
-                inputs: state.inputs.slice(0, state.inputs.length - 1)
-            };
-        }
-        default: {
-            return state;
-        }
+      case "AddINP": {
+          // console.log(payload,type)
+          let addOps = true
+          if(operators.includes(payload) && operators.includes(state.inputs.slice(state.inputs.length-1,state.inputs.length))){
+              addOps = false
+          }
+          else{
+              addOps = true
+          }
+          if(addOps){
+              // console.log({...state,inputs:state.inputs+payload})
+              return{...state,inputs:state.inputs+payload}
+          }
+          return{...state}
+      }
+  
+      case "calculate": {
+          let inpLen = state.inputs.length
+          if(!operators.includes(state.inputs.slice(inpLen-1,inpLen))){
+              try {
+                  let result = eval(state.inputs)
+                  if(!Number.isFinite(result)){
+                      throw new Error("Cnnot divide by zero")
+                  }
+                  let newInp ={...state,res: "", inputs:result.toString()}
+                  return newInp
+              } catch (error) {
+                  console.log("Error")
+                  
+              }
+          }
+          else{
+              return{
+                  ...state,
+                  inputs: eval(state.inputs.slice(0,inpLen-1)).toString(),
+                  res:""
+              }
+          }
+        break;
+      }
+  
+      case "delete": {
+          return {...state, inputs:state.inputs.slice(0,state.inputs.length-1)}
+      }
+  
+      case "clear": {
+          return {...state ,inputs:"",res:""}
+      }
+  
+      default: {
+        return state;
+      }
     }
+    ``;
+  };
+
+const Calculte = () => {
+    let [state, dispatch] = useReducer(reducer, initState);
+
+    let handleclick = (val) => {
+      dispatch({ type: "AddINP", payload: val });
+    };
+    let handleclear = () => {
+      dispatch({ type: "clear" });
+    };
+    let handledel = () => {
+      dispatch({ type: "delete" });
+    };
+    let handlecalc = () => {
+      dispatch({ type: "calculate" });
+    };
+  return (
+    <div className="container">
+    <div className="cal">
+      <div className="display">
+          
+          <p className="">{state.inputs}</p>
+      </div>
+      {/* <input type="text" className="display" /> */}
+      <button className="ac" onClick={handleclear}>
+        AC
+      </button>
+      <button onClick={handledel}>DEL</button>
+      <button onClick={() => handleclick("/")}>/</button>
+      <button onClick={() => handleclick("1")}>1</button>
+      <button onClick={() => handleclick("2")}>2</button>
+      <button onClick={() => handleclick("3")}>3</button>
+      <button onClick={() => handleclick("*")}>*</button>
+      <button onClick={() => handleclick("4")}>4</button>
+      <button onClick={() => handleclick("5")}>5</button>
+      <button onClick={() => handleclick("6")}>6</button>
+      <button onClick={() => handleclick("-")}>-</button>
+      <button onClick={() => handleclick("7")}>7</button>
+      <button onClick={() => handleclick("8")}>8</button>
+      <button onClick={() => handleclick("9")}>9</button>
+      <button onClick={() => handleclick("+")}>+</button>
+      <button onClick={() => handleclick(".")}>.</button>
+      <button onClick={() => handleclick("+")}>0</button>
+      <button className="equal" onClick={handlecalc}>
+        =
+      </button>
+    </div>
+  </div>
+  )
 }
 
-const Calculator = () => {
-    const [state, dispatch] = useReducer(reducer, initState);
-
-    let handleClick = (val) => {
-        dispatch({ type: "addint", payload: val });
-    };
-
-    let handleClear = () => {
-        dispatch({ type: "Clear" });
-    };
-
-    let handleCalc = () => {
-        dispatch({ type: "CALCULATE" });
-    };
-
-    let handleDel = () => {
-        dispatch({ type: "DELETE" });
-    };
-
-    return (
-        <div className='main'>
-                 <div className="display">
-                     {state.inputs}
-                 </div>
-             <div className='button-Container'>
-                 <button onClick={handleClear}>AC</button>
-                 <button onClick={handleDel}>Del</button>
-                 <button onClick={()=>{handleClick("+")}}>+</button>
-             </div>
-             <div className='buttonContainer'>
-                 <button onClick={()=>{handleClick("1")}}>1</button>
-                 <button onClick={()=>{handleClick("2")}}>2</button>
-                  <button onClick={()=>{handleClick("3")}} >3</button>
-                    <button onClick={()=>{handleClick("-")}}>-</button>
-             </div>
-              <div className='buttonContainer'>
-              <button onClick={()=>{handleClick("4")}}>4</button>
-                   <button onClick={()=>{handleClick("5")}}>5</button>
-                   <button onClick={()=>{handleClick("6")}}>6</button>
-                   <button onClick={()=>{handleClick("")}}>*</button>
-               </div>
-               <div  className='buttonContainer'>
-                    <button onClick={()=>{handleClick("7")}}>7</button>
-                    <button onClick={()=>{handleClick("8")}}>8</button>
-                 <button onClick={()=>{handleClick("9")}}>9</button>
-                    <button onClick={()=>{handleClick("/")}}>/</button>
-                </div>
-                 <div  className='buttonContainer'>
-                     <button onClick={()=>{handleClick(".")}}>.</button>
-                  <button onClick={()=>{handleClick("0")}}>0</button>
-                   <button onClick={handleCalc}>=</button>
-               </div>
-           </div>
-    );
-};
-
-export default Calculator;
+export default Calculte
